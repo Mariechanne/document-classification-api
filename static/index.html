@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en"> <!-- Changé à 'en' pour l'anglais -->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document Classifier</title> <!-- Titre en anglais -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #0056b3;
+            text-align: center;
+        }
+        textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            min-height: 150px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            background-color: #e9ecef;
+        }
+        #result p {
+            margin: 5px 0;
+        }
+        #result strong {
+            color: #007bff;
+        }
+        .error {
+            color: red;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Document Classifier</h1> <!-- Titre en anglais -->
+        <p>Enter text below to classify it into one of the 20 newsgroups categories.</p> <!-- Texte en anglais -->
+        <textarea id="documentText" placeholder="Paste your text here..."></textarea> <!-- Placeholder en anglais -->
+        <button onclick="classifyDocument()">Classify</button> <!-- Bouton en anglais -->
+        <div id="result">
+            <p><strong>Predicted Category :</strong> <span id="predictedCategory">Waiting for input...</span></p> <!-- Texte en anglais -->
+            <p><strong>Confidence :</strong> <span id="predictedConfidence">Waiting for input...</span></p> <!-- Texte en anglais -->
+        </div>
+    </div>
+
+    <script>
+        async function classifyDocument() {
+            const documentText = document.getElementById('documentText').value;
+            const resultDiv = document.getElementById('result');
+            const predictedCategorySpan = document.getElementById('predictedCategory');
+            const predictedConfidenceSpan = document.getElementById('predictedConfidence');
+
+            predictedCategorySpan.textContent = 'Classifying...'; // Texte en anglais
+            predictedConfidenceSpan.textContent = 'Calculating...'; // Texte en anglais
+            resultDiv.classList.remove('error');
+
+            try {
+                const response = await fetch('/classify', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ text: documentText })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    predictedCategorySpan.textContent = data.category;
+                    predictedConfidenceSpan.textContent = (data.confidence * 100).toFixed(2) + '%';
+                } else {
+                    predictedCategorySpan.textContent = 'Error!'; // Texte en anglais
+                    predictedConfidenceSpan.textContent = 'N/A';
+                    resultDiv.classList.add('error');
+                    console.error('API Error:', data.error); // Texte en anglais
+                    alert('Classification error: ' + (data.error || 'An unknown error occurred.')); // Texte en anglais
+                }
+            } catch (error) {
+                predictedCategorySpan.textContent = 'Connection Error!'; // Texte en anglais
+                predictedConfidenceSpan.textContent = 'N/A';
+                resultDiv.classList.add('error');
+                console.error('Network or API not available:', error); // Texte en anglais
+                alert('Could not connect to the API. Make sure it is running.'); // Texte en anglais
+            }
+        }
+    </script>
+</body>
+</html>
